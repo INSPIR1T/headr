@@ -1,21 +1,21 @@
-use clap::{Command, Arg, ArgAction};
+use clap::{Command, Arg};
 use std::error::Error;
 
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
-fn parse_positive_int(val: &str) -> MyResult<usize> {
-    match val.parse() {
-        Ok(n) if n > 0 => Ok(n),
-        _ => Err(From::from(val)),
-    }
-}
+// fn parse_positive_int(val: &str) -> MyResult<usize> {
+//     match val.parse() {
+//         Ok(n) if n > 0 => Ok(n),
+//         _ => Err(From::from(val)),
+//     }
+// }
 
 #[derive(Debug)]
 pub struct Config {
     files: Vec<String>,
-    lines: usize,
-    bytes: Option<usize>,
+    lines: u64,
+    bytes: Option<u64>,
 }
 
 pub fn get_args() -> MyResult<Config> {
@@ -51,7 +51,7 @@ pub fn get_args() -> MyResult<Config> {
             .cloned()
             .collect(),
         lines: matches.get_one("lines").cloned().unwrap(),
-        bytes: matches.get_one("bytes").cloned().unwrap(),
+        bytes: matches.get_one("bytes").cloned(),
     })
 }
 
@@ -61,12 +61,21 @@ pub fn run(config: Config) -> MyResult<()> {
 }
 
 
+#[cfg(test)]
 mod tests {
-    use crate::parse_positive_int;
-
+    // use crate::parse_positive_int;
+    //
+    // #[test]
+    // fn test_parse() {
+    //     let k = parse_positive_int("10.44");
+    //     assert!(k.is_err())
+    // }
+    fn ret_some(val : i32) -> i32 {
+            val * 20
+}
     #[test]
-    fn test_parse() {
-        let k = parse_positive_int("10.44");
-        assert!(k.is_err())
+    fn tst_some() {
+        let k = Some(10).map(ret_some);
+        assert_eq!(k ,Some(200))
     }
 }

@@ -4,6 +4,13 @@ use std::error::Error;
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
+fn parse_positive_int(val: &str) -> MyResult<usize> {
+    match val.parse() {
+        Ok(n) if n > 0 => Ok(n),
+        _ => Err(From::from(val)),
+    }
+}
+
 #[derive(Debug)]
 pub struct Config {
     files: Vec<String>,
@@ -24,7 +31,7 @@ pub fn get_args() -> MyResult<Config> {
         .arg(Arg::new("lines")
             .short('n')
             .long("lines")
-            .value_names("LINES")
+            .value_name("LINES")
             .help("number_of_lines")
             .value_parser(clap::value_parser!(u64).range(1..))
             .default_value("10")
@@ -32,7 +39,7 @@ pub fn get_args() -> MyResult<Config> {
         .arg(Arg::new("bytes")
             .short('c')
             .long("bytes")
-            .value_names("BYTES")
+            .value_name("BYTES")
             .conflicts_with("lines")
             .value_parser(clap::value_parser!(u64).range(1..))
             .help("Number of bytes"))
@@ -51,4 +58,15 @@ pub fn get_args() -> MyResult<Config> {
 pub fn run(config: Config) -> MyResult<()> {
     println!("{:#?}", config);
     Ok(())
+}
+
+
+mod tests {
+    use crate::parse_positive_int;
+
+    #[test]
+    fn test_parse() {
+        let k = parse_positive_int("10.44");
+        assert!(k.is_err())
+    }
 }

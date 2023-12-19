@@ -68,7 +68,12 @@ fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
 pub fn run(config: Config) -> MyResult<()> {
     for file in config.files {
         match open(&file) {
-            Ok(_) => println!("File: {file} opened"),
+            Ok(mut f) => { println!("File: {file} opened");
+                for line in f.lines().take(config.lines as usize) {
+                    let line = line?;
+                    println!("{line}");
+                }
+            },
             Err(e) => eprintln!("{file}: {e}")
         }
     }

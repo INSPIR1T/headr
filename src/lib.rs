@@ -1,5 +1,8 @@
 use clap::{Command, Arg};
 use std::error::Error;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::io;
 
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
@@ -55,8 +58,20 @@ pub fn get_args() -> MyResult<Config> {
     })
 }
 
+fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
+    match filename {
+        "-" => Ok(Box::new(BufReader::new(io::stdin()))),
+        _ => Ok(Box::new(BufReader::new(File::open(filename)?)))
+    }
+}
+
 pub fn run(config: Config) -> MyResult<()> {
-    println!("{:#?}", config);
+    for file in config.files {
+        match open(&file) {
+            Ok(_) => println!("File: {file} opened"),
+            Err(e) => eprintln!("{file}: {e}")
+        }
+    }
     Ok(())
 }
 
@@ -70,12 +85,13 @@ mod tests {
     //     let k = parse_positive_int("10.44");
     //     assert!(k.is_err())
     // }
-    fn ret_some(val : i32) -> i32 {
-            val * 20
-}
+    fn ret_some(val: i32) -> i32 {
+        val * 20
+    }
+
     #[test]
     fn tst_some() {
         let k = Some(10).map(ret_some);
-        assert_eq!(k ,Some(200))
+        assert_eq!(k, Some(200))
     }
 }
